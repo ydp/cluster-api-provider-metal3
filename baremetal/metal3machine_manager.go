@@ -511,7 +511,7 @@ func (m *MachineManager) Delete(ctx context.Context) error {
 			host.Spec.MetaData = nil
 			bmhUpdated = true
 		}
-		if m.Metal3Machine.Status.NetworkData != nil && host.Spec.NetworkData != nil && m.noUserNetworkData(host) {
+		if m.Metal3Machine.Status.NetworkData != nil && host.Spec.NetworkData != nil {
 			host.Spec.NetworkData = nil
 			bmhUpdated = true
 		}
@@ -1043,16 +1043,6 @@ func (m *MachineManager) setHostLabel(ctx context.Context, host *bmov1alpha1.Bar
 	return nil
 }
 
-func (m *MachineManager) noUserNetworkData(host *bmov1alpha1.BareMetalHost) bool {
-	if host.Spec.NetworkData == nil {
-		return true
-	}
-	if host.Spec.NetworkData.Name != fmt.Sprintf("%s-bmh-networkdata", host.Name) {
-		return true
-	}
-	return false
-}
-
 // setHostSpec will ensure the host's Spec is set according to the machine's
 // details. It will then update the host via the kube API. If UserData does not
 // include a Namespace, it will default to the Metal3Machine's namespace.
@@ -1087,7 +1077,7 @@ func (m *MachineManager) setHostSpec(ctx context.Context, host *bmov1alpha1.Bare
 		if host.Spec.MetaData != nil && host.Spec.MetaData.Namespace == "" {
 			host.Spec.MetaData.Namespace = m.Machine.Namespace
 		}
-		if m.Metal3Machine.Status.NetworkData != nil && m.noUserNetworkData(host) {
+		if m.Metal3Machine.Status.NetworkData != nil {
 			host.Spec.NetworkData = m.Metal3Machine.Status.NetworkData
 		}
 		if host.Spec.NetworkData != nil && host.Spec.NetworkData.Namespace == "" {
